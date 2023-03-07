@@ -1,3 +1,4 @@
+import utils as u
 # Размеры стола(м)
 Lx = 2.0
 Ly = 2.0
@@ -12,8 +13,8 @@ x1 = 1
 y1 = 0.8
 
 # Координаты зеленого шарика (м)
-x1 = 1
-y1 = 0.8
+x2 = 1
+y2 = 0.8
 
 # Радиус шариков (м)
 r = 0.05
@@ -26,3 +27,16 @@ v0 = 2
 
 # Коэффициент трения (3 разных)
 mu = [0.01, 0.05, 0.1]
+
+
+pocket = u.Coordinates(x0, y0)
+
+redBall = u.Ball(u.Coordinates(x1, y1), m, r)
+greenBall = u.Ball(u.Coordinates(x2, y2), m, r)
+
+
+cord1 = u.Coordinates(0, 0)
+cord2 = u.Coordinates(2, 3)
+
+
+print(redBall.isInsideOtherBall(greenBall))
