@@ -34,9 +34,4 @@ pocket = u.Coordinates(x0, y0)
 redBall = u.Ball(u.Coordinates(x1, y1), m, r)
 greenBall = u.Ball(u.Coordinates(x2, y2), m, r)
 
-
-cord1 = u.Coordinates(0, 0)
-cord2 = u.Coordinates(2, 3)
-
-
 print(redBall.isInsideOtherBall(greenBall))
