@@ -1,5 +1,6 @@
 import xlsxwriter
-import random
+
+N = 50
 
 class interval:
     def __init__(self, x, y) -> None:
@@ -9,12 +10,8 @@ class interval:
 workbook = xlsxwriter.Workbook('Labs\Lab1\\results.xlsx')
 worksheet = workbook.add_worksheet()
 
-N = 50
 
-allNumbers = [4.89] * N
-
-for i in range(N):
-    allNumbers[i] = round(allNumbers[i] + random.random() * 0.21, 2)
+allNumbers = [5.34, 4.85, 4.90, 5.15, 5.11, 4.99, 4.76, 5.21, 4.95, 4.94,5.06, 5.21, 5.05, 5.07, 4.78, 5.01, 4.99, 5.13, 4.78, 4.93, 4.92, 5.09, 5.02, 5.37, 4.96, 4.89, 5.08, 5.05, 4.82, 5.32, 4.87, 5.09, 5.14, 4.80, 5.30, 5.06, 4.79, 4.84, 5.01, 5.03, 4.84, 5.09, 4.80, 5.22, 5.17, 4.99, 4.84, 5.07, 5.07, 5.15]
 
 allNumbers.sort()
 
@@ -23,57 +20,5 @@ for i in range(N):
     worksheet.write(line1, i)
     line2 = 'B' + str(i)
     worksheet.write(line2, allNumbers[i])
-
-min = min(allNumbers)
-max = max(allNumbers)
-
-numOfIntervals = 14
-intervalsNotNormal = [0] * numOfIntervals
-
-
-for i in range(numOfIntervals):
-    if(i == 0):
-        intervalsNotNormal[i] = min
-    else:
-        intervalsNotNormal[i] += round(intervalsNotNormal[i-1] + 0.05, 2) 
-
-intervalsNotNormal.sort()
-
-numOfIntervalPairs = 7
-intervalsPairs = []*numOfIntervalPairs
-
-for i in [0,2,4,6,8,10,12]:
-    inter = interval(intervalsNotNormal[i], intervalsNotNormal[i+1]) 
-    intervalsPairs.append(inter)
-    
-
-for i in range(numOfIntervals):
-    line1 = 'F' + str(i + 5)
-    worksheet.write(line1, intervalsNotNormal[i])
-    
-numbersBetweenIntervals = [0] * 7
-    
-def isInRange(btw : interval, num):
-    if num > btw.x and num < btw.y:
-        return True
-    else: 
-        return False
-
-flag = 0
-
-for i in range(numOfIntervalPairs):
-    for j in range(N):
-        if(isInRange(intervalsPairs[i], allNumbers[j]) == True):
-            flag += 1
-    numbersBetweenIntervals[i] = flag
-    flag = 0
-
-for i in range(numOfIntervalPairs):
-    line1 = 'G' + str(i+5)
-    worksheet.write(line1, numbersBetweenIntervals[i])
-
-
-print(allNumbers)
-print(numbersBetweenIntervals)
 
 workbook.close()
