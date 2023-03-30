@@ -1,3 +1,3 @@
 # RESULT
 
-![result](Modeling/Billiard/graph.jpg)
+![result](https://github.com/AlexDyakonov/itmo-physics-hw/blob/master/Modeling/Billiard/graph.jpg)
