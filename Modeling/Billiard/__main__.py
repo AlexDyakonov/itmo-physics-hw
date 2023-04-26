@@ -4,9 +4,9 @@ from copy import deepcopy
 from matplotlib import pyplot as plt
 from utils import *
 
-#длина стола ширина стола
+# длина стола ширина стола
 Lx = 2.0
-Ly = 2.0 
+Ly = 2.0
 
 # Координаты лузы
 x0 = 1
@@ -27,7 +27,7 @@ R = 0.4
 r = 0.03
 
 # Масса шаров
-m = 0.3 
+m = 0.3
 
 # начальная скорость кр шара
 V0 = 2
@@ -35,21 +35,21 @@ V0 = 2
 g = 9.8
 # к-т трения
 mu1 = 0.03
-mu2 = 0.15 
+mu2 = 0.15
 mu3 = 0.3
 
 results = {
-    mu1 : dict(zip(np.linspace(0, 2*np.pi, 360).tolist(), [-1]*360)),
-    mu2 : dict(zip(np.linspace(0, 2*np.pi, 360).tolist(), [-1]*360)),
-    mu3 : dict(zip(np.linspace(0, 2*np.pi, 360).tolist(), [-1]*360))
+    mu1: dict(zip(np.linspace(0, 2 * np.pi, 360).tolist(), [-1] * 360)),
+    mu2: dict(zip(np.linspace(0, 2 * np.pi, 360).tolist(), [-1] * 360)),
+    mu3: dict(zip(np.linspace(0, 2 * np.pi, 360).tolist(), [-1] * 360))
 }
-dt = 10./2000
+dt = 10. / 2000
 for mu, result in results.items():
     for alpha in result.keys():
-        RedBall = Ball(Coordinates(x1, y1),\
-                    Coordinates(V0*math.cos(alpha), V0*math.sin(alpha)),\
-                        Coordinates(-mu*g*math.cos(alpha), -mu*g*math.sin(alpha)),\
-                            m, r)
+        RedBall = Ball(Coordinates(x1, y1), \
+                       Coordinates(V0 * math.cos(alpha), V0 * math.sin(alpha)), \
+                       Coordinates(-mu * g * math.cos(alpha), -mu * g * math.sin(alpha)), \
+                       m, r)
         GreenBall = Ball(Coordinates(x2, y2), Coordinates(0, 0), Coordinates(0, 0), m, r)
         Hole = Ball(Coordinates(x0, y0), None, None, None, R)
         for t in np.linspace(0, 10, 2000):
@@ -62,7 +62,7 @@ for mu, result in results.items():
                         _alpha += math.pi
                     BR = RedBall.coordinates.y - RedBall.speed.y / RedBall.speed.x * RedBall.coordinates.x
                     BG = GreenBall.coordinates.y - RedBall.speed.y / RedBall.speed.x * GreenBall.coordinates.x
-                    d = (BR - BG) / math.sqrt((RedBall.speed.y / RedBall.speed.x)**2 + 1)
+                    d = (BR - BG) / math.sqrt((RedBall.speed.y / RedBall.speed.x) ** 2 + 1)
                 else:
                     if RedBall.speed.y > 0:
                         _alpha = math.pi / 2
@@ -71,16 +71,17 @@ for mu, result in results.items():
                     BR = RedBall.coordinates.x
                     BG = GreenBall.coordinates.x
                     d = BR - BG
-                if abs(BR - BG) == 0: #центральное столкновение
+                if abs(BR - BG) == 0:  # центральное столкновение
                     GreenBall.setSpeed(RedBall.getSpeed())
                     GreenBall.setAcceleration(RedBall.getAcceleration())
-                else:
-                    phi = math.acos(abs(d)/(2*r))
-                    if _alpha != math.pi / 2:
-                        if (d > 0) == (RedBall.speed.x > 0): #A
+                else:  # нецентральное соударение
+                    phi = math.acos(abs(d) / (2 * r)) #формула, получена аналитически
+                    if _alpha != math.pi / 2: #рассчет углов, при различных случаях налета шаров
+                        # вычисляются углы при соударении, дальше меняем скорости.
+                        if (d > 0) == (RedBall.speed.x > 0):  # A
                             phiRed = _alpha + phi
                             phiGreen = _alpha - (math.pi / 2 - phi)
-                        else: #B
+                        else:  # B
                             phiRed = _alpha - phi
                             phiGreen = _alpha + (math.pi / 2 - phi)
                     else:
@@ -91,43 +92,75 @@ for mu, result in results.items():
                             phiRed = _alpha - phi
                             phiGreen = _alpha + (math.pi / 2 - phi)
                     GBSpeedNorm = RedBall.speed.norm() * math.sin(_alpha - phiRed) / math.sin(phiGreen - phiRed)
-                    GreenBall.setSpeed(Coordinates(GBSpeedNorm*math.cos(phiGreen),\
-                                                GBSpeedNorm*math.sin(phiGreen)))
-                    GreenBall.setAcceleration(Coordinates(-mu*g*math.cos(phiGreen), -mu*g*math.sin(phiGreen)))
+                    GreenBall.setSpeed(Coordinates(GBSpeedNorm * math.cos(phiGreen), \
+                                                   GBSpeedNorm * math.sin(phiGreen)))     #обновление скорости зеленого
+                    GreenBall.setAcceleration(Coordinates(-mu * g * math.cos(phiGreen), -mu * g * math.sin(phiGreen)))
                     RBSpeedNorm = RedBall.speed.norm() / math.cos(phiRed) * \
-                        (math.cos(_alpha) - math.cos(phiGreen)*math.sin(_alpha - phiRed) / math.sin(phiGreen - phiRed))
-                    RedBall.setSpeed(Coordinates(RBSpeedNorm*math.cos(phiRed), RBSpeedNorm*math.sin(phiRed)))
-                    RedBall.setAcceleration(Coordinates(-mu*g*math.cos(phiRed), -mu*g*math.sin(phiRed)))
-            if GreenBall.isCollision(Hole):
-                result[alpha] = m * GreenBall.speed.norm()**2 / 2
+                                  (math.cos(_alpha) - math.cos(phiGreen) * math.sin(_alpha - phiRed) / math.sin(
+                                      phiGreen - phiRed))
+                    RedBall.setSpeed(Coordinates(RBSpeedNorm * math.cos(phiRed)
+                                                 , RBSpeedNorm * math.sin(phiRed)))     #обновление скорости красного
+                    RedBall.setAcceleration(Coordinates(-mu * g * math.cos(phiRed), -mu * g * math.sin(phiRed)))
+
+                    #обновление скоростей произошло после рассчета углов разлета в ДСК.
+            if GreenBall.isCollision(Hole): #попадание в лузу
+                result[alpha] = m * GreenBall.speed.norm() ** 2 / 2
                 break
             if RedBall.speed.x == 0 and RedBall.speed.y == 0 and GreenBall.speed.x == 0 and GreenBall.speed.y == 0:
-                break
+                break  # все шары остановились
             RedBall.isCollisionWall(Lx, Ly)
             GreenBall.isCollisionWall(Lx, Ly)
             RedBall.iteration(dt)
             GreenBall.iteration(dt)
-            
-    results[mu] = {angle:energy for angle, energy in result.items() if energy != -1}
 
-#Graph
+    # results[mu] = {angle:energy for angle, energy in result.items() if energy != -1}
+
+# Graph
 color1 = 'white'
 color2 = 'black'
 color0 = color2
+
+_results = {
+    mu1: None,
+    mu2: None,
+    mu3: None
+}
+for mu in results.keys():
+    arrays = []
+    array = {}
+    for key, value in results[mu].items():
+        if value != -1:
+            array.update({key: value})
+        else:
+            if len(array) != 0:
+                arrays.append(array.copy())
+                array.clear()
+    _results[mu] = arrays
 
 fig = plt.figure(figsize=(15, 10))
 
 ax = fig.add_subplot()
 plt.minorticks_on()
 plt.xlim((0, 360))
-plt.grid(which='major', color = 'grey')
-plt.grid(which='minor', color = 'grey')
+plt.grid(which='major', color='grey')
+plt.grid(which='minor', color='grey')
 plt.ylabel("Энергия шара $E$ (Дж)", fontsize=24, color=color0)
 plt.xlabel("Угол $\\alpha$ (град)", fontsize=24, color=color0)
 ax.tick_params(axis='x', colors=color0)
 ax.tick_params(axis='y', colors=color0)
-plt.scatter([angle * 180 / math.pi for angle in list(results[mu1].keys())], list(results[mu1].values()), color='r')
-plt.scatter([angle * 180 / math.pi for angle in list(results[mu2].keys())], list(results[mu2].values()), color='g')
-plt.scatter([angle * 180 / math.pi for angle in list(results[mu3].keys())], list(results[mu3].values()), color='b')
+colors = {
+    mu1: 'r',
+    mu2: 'g',
+    mu3: 'b'
+}
+for mu, segments in _results.items():
+    lbl = 'mu = ' + str(mu)
+    for segment in segments:
+        plt.plot([angle * 180 / math.pi for angle in list(segment.keys())], list(segment.values()), color=colors[mu],
+                 label=lbl)
+        lbl = ''
+plt.legend()
 plt.grid(True)
-plt.savefig('graph.jpg')
+
+plt.savefig('Modeling\Billiard\graph.jpg')
+plt.show()
