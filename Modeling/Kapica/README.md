@@ -1,8 +1,8 @@
 # RESULT
 ## Фазовый портрет
 
-![result](Modeling\Kapica\phase_portrait.png)
+![result](https://raw.githubusercontent.com/AlexDyakonov/itmo-physics-hw/master/Modeling/Kapica/phase_portrait.png)
 
 ## Временную зависимость потенциальной и кинетической энергии
 
-![result](Modeling\Kapica\energy_time.png)
+![result](https://raw.githubusercontent.com/AlexDyakonov/itmo-physics-hw/master/Modeling/Kapica/energy_time.png)
