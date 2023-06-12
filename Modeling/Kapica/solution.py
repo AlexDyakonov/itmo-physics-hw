@@ -2,47 +2,40 @@ import numpy as np
 from scipy.integrate import odeint
 import matplotlib.pyplot as plt
 
-# Задание параметров
-m = 0.1  # масса грузика, кг
-l = 0.2  # длина стержня, м
-delta = 0.1  # коэффициент трения
-gamma = 1.0  # амплитуда внешней силы
-g = 9.81
-omega = 2.0 * np.sqrt(g / l)  # частота внешней силы
+m = 0.1  # масса груза в кг
+l = 0.2  # длина стержня в м
+g = 9.81  # ускорение свободного падения в м/с^2
+nu = np.sqrt(g / l)  # собственная частота колебаний маятника
 
-# Функция, описывающая уравнение движения маятника Капицы
-def pendulum_eq(y, t, delta, gamma, omega, m, l):
-    x, dx = y  # x - угол отклонения, dx - производная угла (скорость)
-    # dydt - производная от состояния системы (скорость и ускорение)
-    dydt = [dx, -delta*dx - np.sin(x) + gamma*np.cos(omega*t)/(m*l)]
-    return dydt
+def kapitza_pendulum(state, t, a, omega):
+    phi, phidot = state
+    phidotdot = -(a*omega**2*np.cos(omega*t) + g)*np.sin(phi) / l
+    return phidot, phidotdot
 
-# Задание начальных условий
-y0 = [np.pi - 0.1, 0.0]  # начальное отклонение и начальная скорость
+def energy(state, a, omega, t):
+    phi, phidot = state
+    kinetic = 0.5*m*(l*phidot)**2 + m*a*omega*np.sin(omega*t)*l*phidot*np.sin(phi) + 0.5*m*a**2*omega**2*np.sin(omega*t)**2
+    potential = -m*g*(l*np.cos(phi) + a*np.cos(omega*t))
+    return kinetic, potential
 
-# Создание временного ряда
-t = np.linspace(0, 20, num=800)
+a = 0.1  # амплитуда колебаний подвеса в м
+omega = 1.5*nu  # частота вынуждающих колебаний
+state0 = [np.pi / 4, 0]  # начальные условия: угол отклонения и угловая скорость
+t = np.linspace(0, 10, 1000)  # время
 
-# Решение уравнения движения с использованием метода Рунге-Кутты
-solution = odeint(pendulum_eq, y0, t, args=(delta, gamma, omega, m, l))
+# Решаем систему дифференциальных уравнений
+state = odeint(kapitza_pendulum, state0, t, args=(a, omega))
 
-# Построение фазового портрета НЕВЕРНО, СТРОИЛ В WOLFRAM
-plt.figure()  # создание нового графика
-plt.plot(solution[:, 0], solution[:, 1])  # отображение x от dx/dt
-plt.xlabel('x')  
-plt.ylabel('dx/dt')  
-plt.title('Phase portrait')  
-plt.savefig('phase_portrait.png')  
+# Рассчитываем энергию
+kinetic, potential = np.array([energy(s, a, omega, t) for s, t in zip(state, t)]).T
 
-# Построение графиков потенциальной и кинетической энергии в зависимости от времени
-kinetic_energy = 0.5*m*l**2*solution[:, 1]**2  # кинетическая энергия = Iω^2/2, где I - момент инерции (ml^2 для маятника), ω - угловая скорость
-potential_energy = m*9.81*l*(1-np.cos(solution[:, 0]))  # потенциальная энергия = mgh, где h = l(1-cosθ)
+# Строим графики
+fig, axes = plt.subplots(3, 1, figsize=(8, 10))
 
-plt.figure()  # создание нового графика
-plt.plot(t, kinetic_energy, label='Kinetic Energy')  # отображение времени от кинетической энергии
-plt.plot(t, potential_energy, label='Potential Energy')  # отображение времени от потенциальной энергии
-plt.xlabel('t')  
-plt.ylabel('Energy')  
+plt.plot(t, kinetic, label='Кинетическая')
+plt.plot(t, potential, label='Потенциальная')
+plt.legend()
+
 plt.title('Energy vs time')  
 plt.legend()  
 plt.savefig('energy_time.png')  
